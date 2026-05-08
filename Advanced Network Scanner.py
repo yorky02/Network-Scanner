@@ -1,65 +1,91 @@
 import socket
 
 
-# network scanner
-
 def welcome():
-    print('Welcome to the Advanced Network Scanner!')
+    print("Welcome to the Advanced Network Scanner!")
     print("By Octavio Vieira")
     print()
-welcome()
+
 
 def is_port_open(ip, port):
     port_checker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     port_checker.settimeout(0.5)
-    condition_helper = port_checker.connect_ex((ip, port))
 
     try:
-        if condition_helper == 0:
+        result = port_checker.connect_ex((ip, port))
+
+        if result == 0:
             return True
-        elif condition_helper != 0:
+        else:
             return False
+
     finally:
         port_checker.close()
 
+
 def single_port_scanner(ip, port):
-    is_port_open(ip, port)
-    try:
+    if is_port_open(ip, port):
+        print(f"Port {port} is open")
+    else:
+        print(f"Port {port} is closed")
+
+
+def multiple_port_scanner_range(ip, start_port, end_port):
+    open_ports = []
+
+    print(f"\nScanning {ip} from port {start_port} to {end_port}...\n")
+
+    for port in range(start_port, end_port + 1):
         if is_port_open(ip, port):
-            print("Port is open")
+            open_ports.append(port)
+            print(f"Port {port} is open")
+
+    print("\nScan complete.")
+
+    if len(open_ports) > 0:
+        print("Open ports:", open_ports)
+    else:
+        print("No open ports found.")
+
+    return open_ports
+
+
+def valid_port(port):
+    return port >= 1 and port <= 65535
+
+
+def main():
+    welcome()
+
+    ip = input("Please enter IP address or hostname: ")
+
+    try:
+        options = int(input("Select option: 1) Scan single port or 2) Scan multiple ports: "))
+
+        if options == 1:
+            port = int(input("What port would you like to scan?: "))
+
+            if valid_port(port):
+                single_port_scanner(ip, port)
+            else:
+                print("Port must be between 1 and 65535.")
+
+        elif options == 2:
+            start_port = int(input("Please enter the starting port number: "))
+            end_port = int(input("Please enter the ending port number: "))
+
+            if valid_port(start_port) and valid_port(end_port) and start_port <= end_port:
+                multiple_port_scanner_range(ip, start_port, end_port)
+            else:
+                print("Invalid range. Ports must be between 1 and 65535, and start must be <= end.")
+
         else:
-            print("Port is closed")
-    finally:
-        print()
-        print("thank you for using this tool !!!")
+            print("Please enter a valid option: 1 or 2.")
 
-ip = input('Please enter ip address or hostname: ')
-options = int(input('Select one of the following options: 1) Scan single port or 2) Scan multiple ports.'))
+    except ValueError:
+        print("Please enter numbers only for options and ports.")
 
-if options == 1:
-    print()
-    port = int(input("What port would you like to scan?: "))
-    print()
-    single_port_scanner(ip, port)
-elif options == 2:
-    print()
-    print('This function is getting updated. Sorry!')
-    print()
-elif options != 1 and options != 2:
-    print()
-    print("Please enter a valid port. It must be an integer.")
-    print()
-
-#port = int(input("What port would you like to scan?: "))
-
-#try:
-    #port_scanning_type = int(input('Please enter port scanning type (number): '))
-    #if port_scanning_type == port_scanning_type:
-       # print(single_port_scanner(ip, port))
-#except ValueError:
-        #print("Please enter a valid port. It must be an integer.")
+    print("\nThank you for using this tool!")
 
 
-
-
-
+main()
